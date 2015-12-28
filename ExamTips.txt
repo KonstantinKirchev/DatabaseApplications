@@ -1,0 +1,51 @@
+var json = new JavaScriptSerializer().Serialize(leaguesQuery);
+File.WriteAllText(@"leagues-and-teams.json", json);
+Това е нужно за 2ра задача. Също така трябва да си импортна System.Web.Extensions в референциите.
+....................................................................................................................
+
+Enable-Migrations -EnableAutomaticMigrations
+Това го пиша в Package Manager Console. Нужно е за 6та задача.
+....................................................................................................................
+
+Database.SetInitializer(new MigrateDatabaseToLatestVersion<PhonebookContext,Configuration>());
+Това го слагам в конструктора на Context файла за да мога да Seedвам !!!
+....................................................................................................................
+За 6та задача при пълненето на базата...
+context.Users.AddOrUpdate(u => u.Username,
+new User(){
+	Firstname = "Pesho"
+});
+По този начин няма да ми дублира данните
+....................................................................................................................
+protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Conventions.Remove<OneToManyCascadeDeleteConvention>();
+            base.OnModelCreating(modelBuilder);
+        }
+Това се прави в PhonebookContext за да мога да си вкарам базата без да ме предупреждава за каскадно триене!!! За 6та задача
+....................................................................................................................
+message.Date.ToString(new CultureInfo("en-US")) - Така преобразувам датата към Американски стандарт
+....................................................................................................................
+DateTime dateTime; 
+DateTime.TryParse(match.date.ToString(), out dateTime);
+dateTime.TimeOfDay.TotalSeconds == 0
+....................................................................................................................
+string.Join(", ", contact.emails.DefaultIfEmpty("no emails"))
+....................................................................................................................
+за 4та задача
+
+var country = countryElement.Value;
+var countryEntity = context.Countries.FirstOrDefault(c => c.CountryName == country);
+
+if (countryEntity != null)
+{
+      riverEntity.Countries.Add(countryEntity);
+}
+else
+{
+      throw new Exception(string.Format("Cannot find country {0} in the DB", country));
+}
+....................................................................................................................
+
+
+

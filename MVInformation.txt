@@ -1,0 +1,72 @@
+ORM - Object Ralational Mapping
+Entity Framework и ADO.NET са библиотеки но ADO.NET е доста базова.
+ORM frameworks automatically generate SQL to perform the requested data operations
+ORM Entities (C# classes)
+Entity Framework (EF) is the standard ORM framework for .NET
+Data mappings consist of C# classes, XML and attributes
+EF е абстракция за работа с данни
+DbContext holds the database connection and the entity classes
+...........................................................................................................................
+Database First
+
+var courses = student.Courses.Where(…);
+Courses е навигационно пропърти.
+
+An association is a primary key / foreign key-based relationship between two entity classes
+
+partial class Employee - партиал класа позволява да имам един и същи клас в два отделни фаила
+
+Nullable<int> или int? TownId - Позволяват в това пропърти да се пазят null стойности
+
+public virtual Town Town { get; set; } - Това се нарича навигационно пропърти. Позволя връзката (join) между две отделни таблици.
+Прави се virtual за да не дърпам цялата информация от таблицата а само името на града например.
+Прилага се така нареченото lasy loading!!!
+
+public virtual ICollection<Employee> Employees { get; set; }
+public Address()
+        {
+            this.Employees = new HashSet<Employee>();
+        }
+Колекцията трябва да се инстанцира в конструктора на класа. Защото тя по default е null ако не е инстанцирана.
+
+За всяка една таблица имам dbSet който пази съответната таблица от базата.
+
+IDbSet - дженерик интерфейс!!! Това е една абстрактна колекция която може да пази в себе си всякакви типове (дженерик типове(шаблонен тип))!!!
+
+.Select(e => new{
+                    e.FirstName,
+                    LastName = e.LastName,
+                    JopPosition = e.JobTitle
+                });
+Това се нарича заявка от анонимен обект!!!
+................................................................................................................................
+Code First
+
+protected override void Seed(ForumContext context)
+{
+  /* This method will be called after migrating to the latest version.   
+     You can use the DbSet<T>.AddOrUpdate() helper extension method 
+     to avoid creating duplicate seed data. E.g. */
+
+  context.Tags.AddOrUpdate(t => t.Text, new Tag { Text = "C#" });
+  context.SaveChanges();
+}
+
+modelBuilder.Entity<User>()
+    .HasMany(u => u.Friends)
+    .WithMany()
+    .Map(m =>
+    {
+        m.MapLeftKey("UserId");
+        m.MapRightKey("FriendId");
+        m.ToTable("UserFriends");
+    }); - По този начин си създавам таблица много към много
+
+
+
+
+
+
+
+
+

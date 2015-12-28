@@ -1,0 +1,122 @@
+3. 
+var context = new GeographyEntities();
+            var countriesQuery =
+                context.Countries
+                .Where(c => c.Monasteries.Any())
+                .OrderBy(c => c.CountryName)
+                .Select(c => new
+                {
+                    CountryName = c.CountryName,
+                    Monasteries = c.Monasteries
+                        .OrderBy(m => m.Name)
+                        .Select(m => m.Name)
+                });
+
+            var xmlDoc = new XDocument();
+            var xmlRoot = new XElement("monasteries");
+            xmlDoc.Add(xmlRoot);
+
+            foreach (var country in countriesQuery)
+            {
+                var countryXml = new XElement("country", new XAttribute("name", country.CountryName));
+                xmlRoot.Add(countryXml);
+                foreach (var monastery in country.Monasteries)
+                {
+                    var monasteryXml = new XElement("monastery", monastery);
+                    countryXml.Add(monasteryXml);
+                }
+            }
+
+            xmlDoc.Save("monasteries.xml");
+
+4.
+
+var context = new GeographyEntities();
+            var xmlDoc = XDocument.Load("../../rivers.xml");
+            var riverElements = xmlDoc.Root.Elements();
+            foreach (var riverElement in riverElements)
+            {
+                var riverEntity = new River();
+                riverEntity.RiverName = riverElement.Element("name").Value;
+                riverEntity.Length = 
+                    int.Parse(riverElement.Element("length").Value);
+                riverEntity.Outflow = riverElement.Element("outflow").Value;
+                if (riverElement.Element("drainage-area") != null)
+                {
+                    riverEntity.DrainageArea = 
+                        int.Parse(riverElement.Element("drainage-area").Value);
+                }
+                if (riverElement.Element("average-discharge") != null)
+                {
+                    riverEntity.AverageDischarge = 
+                        int.Parse(riverElement.Element("average-discharge").Value);
+                }
+
+                ParseAndAddCountriesToRiver(riverElement, context, riverEntity);
+
+                context.Rivers.Add(riverEntity);
+            }
+
+            context.SaveChanges();
+        }
+
+        private static void ParseAndAddCountriesToRiver(
+            XElement riverElement, GeographyEntities context, River riverEntity)
+        {
+            var countryElements = riverElement.XPathSelectElements("countries/country");
+            foreach (var countryElement in countryElements)
+            {
+                var countryName = countryElement.Value;
+                var countryEntity = context.Countries.FirstOrDefault(c => c.CountryName == countryName);
+                if (countryEntity != null)
+                {
+                    riverEntity.Countries.Add(countryEntity);
+                }
+                else
+                {
+                    throw new Exception(string.Format("Cannot find country {0} in the DB", countryName));
+                }
+            }
+        }
+5.
+
+var context = new GeographyEntities();
+            var xmlDocInput = XDocument.Load("../../rivers-query.xml");
+            var queryResults = new XElement("results");
+            foreach (var queryElement in xmlDocInput.XPathSelectElements("/queries/query"))
+            {
+                var riversQuery = BuildRiversQuery(context, queryElement);
+                var riversElement = new XElement("rivers");
+                riversElement.Add(new XAttribute("total-count", riversQuery.Count().ToString()));
+                var maxResultsAttribute = queryElement.Attribute("max-results");
+                if (maxResultsAttribute != null)
+                {
+                    int maxResults = int.Parse(maxResultsAttribute.Value);
+                    riversQuery = riversQuery.Take(maxResults);
+                }
+                var riverNames = riversQuery.Select(r => r.RiverName).ToList();
+                foreach (var riverName in riverNames)
+                {
+                    riversElement.Add(new XElement("river", riverName));
+                }
+                riversElement.Add(new XAttribute("listed-count", riversQuery.Count().ToString()));
+                queryResults.Add(riversElement);
+            }
+
+            Console.WriteLine(queryResults);
+        }
+
+        private static IQueryable<River> BuildRiversQuery(
+            GeographyEntities context, XElement queryElement)
+        {
+            IQueryable<River> riversQuery = context.Rivers.AsQueryable();
+            foreach (var countryElement in queryElement.XPathSelectElements("country"))
+            {
+                var countryName = countryElement.Value;
+                riversQuery = riversQuery.Where(
+                    r => r.Countries.Any(c => c.CountryName == countryName));
+            }
+            riversQuery = riversQuery.OrderBy(r => r.RiverName);
+            return riversQuery;
+        }
+

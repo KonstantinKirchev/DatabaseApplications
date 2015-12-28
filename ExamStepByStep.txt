@@ -1,0 +1,99 @@
+I. Задача
+
+1. Създавам си Blank Solution
+2. Създавам си конзолно приложение 1 задача
+3. Вътре си създавам EDO.NET и се връзвам към базата
+4. На края си изпълнявам заявката и я отпечатвам на конзолата
+...........................................................................................
+
+II. Задача
+
+1. Създавам си конзолно приложение 2 задача
+2. Давам му референция към 1 задача и инсталирам EntityFramework
+3. Копирам от 1 задача AppConfig connectionString и го пействам в 2ра задача
+4. В референции трябва да заредя System.Web.Extensions
+5. На края си изпълнявам заявката и я записвам в Json
+
+var json = new JavaScriptSerializer().Serialize(manufacturers);
+File.WriteAllText(@"manufactureres-and-cameras.json", json);
+
+После отивам в Solution и показвам всички файлове и в папка bin/Debug се намира JSON файла
+...........................................................................................
+
+III. Задача
+
+1. Създавам си конзолно приложение 3 задача
+2. Давам му референция към 1 задача и инсталирам EntityFramework
+3. Копирам от 1 задача AppConfig connectionString и го пействам в 3та задача
+4. Правя си заявката, за да взема всичката необходима информация от базата и сортирам
+5. Започвам с този ред 
+   
+   var xmlRoot = new XElement("photographs");
+    
+   после правя foreach по всички фотографи който съм взел от базата
+   
+   var photographXml =
+                    new XElement(("photograph"), new XAttribute("title", photograph.title),
+                    new XElement("category",photograph.category),
+                    new XElement("link", photograph.link),
+                    new XElement("equipment",
+                    new XElement("camera", photograph.camera, new XAttribute("megapixels", photograph.megapixels)),
+                    photograph.price != null
+                        ? new XElement("lens", photograph.lens,
+                            new XAttribute("price", string.Format("{0:f2}", photograph.price)))
+                        : new XElement("lens", photograph.lens)));
+                
+                xmlRoot.Add(photographXml);
+
+6. На края извън foreach записвам всичко в xml файла 
+   xmlRoot.Save("photographs.xml");
+................................................................................................
+
+IV. Задача
+
+1. Създавам си конзолно приложение 3 задача
+2. Давам му референция към 1 задача и инсталирам EntityFramework
+3. Копирам от 1 задача AppConfig connectionString и го пействам в 4та задача
+4. Създавам си xml файл в който копирам данните от задачата
+5. Виж photography exam задача 4 там всичко е описано...
+................................................................................................
+
+VI. Задача
+
+1. Създавам си конзолно приложение 3 задача
+2. Вътре си създавам EDO.NET и започвам да си създавам CodeFirst база с класове и прочие...
+3. Създавам си клас ChatRoomContext в който си вкарвам всички таблици(класове)
+4. Създавам си отделни класове за всяка таблица и почвам да им пълня proparties
+5. Трябва да си оправя connectionString в App.config и името на базата.
+6. В Package Manager Console пиша Enable-Migrations -EnableAutomaticMigrations и си избирам от Default Project
+   задача 6 и натискам enter.
+   Така си създавам папка Migrations с клас Configuration
+7. В класа ChatRoomContext в конструктора вкарвам следният текст 
+   
+   Database.SetInitializer(new MigrateDatabaseToLatestVersion<PhonebookContext,Configuration>());
+   
+   и в същият клас оверайдвам метода 
+        
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Conventions.Remove<OneToManyCascadeDeleteConvention>();
+            base.OnModelCreating(modelBuilder);
+        } 
+8. За да си вдигна базата трябва да изпълня заявка в Main класа, например 
+   
+   var context = new ChatRoomContext();
+   Console.WriteLine(context.Users.Count());
+
+9. Отивам в Configuration класа и вкарвам цялата информация за базата в Seed метода
+10. После си правя заявката и отпечатвам информацията на конзолата.
+..................................................................................................
+
+VII. Задача
+
+1. Създавам си конзолно приложение 7 задача
+2. Давам му референция към 6 задача и инсталирам EntityFramework и JSON
+3. Копирам от 6 задача AppConfig connectionString и го пействам в 7та задача
+4. Създавам си json файл в който копирам данните от задачата
+5. Виж photography exam задача 7 там всичко е описано...
+
+ 
